@@ -1,0 +1,5 @@
+customtkinter==5.2.2
+pygame==2.6.1
+keyboard==0.13.5
+Pillow==11.1.0
+pyinstaller==6.12.0

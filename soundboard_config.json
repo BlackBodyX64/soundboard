@@ -1,0 +1,365 @@
+{
+  "master_volume": 80,
+  "pads": [
+    {
+      "key": "F1",
+      "sound_path": "",
+      "sound_name": "",
+      "volume": 100
+    },
+    {
+      "key": "F2",
+      "sound_path": "",
+      "sound_name": "",
+      "volume": 100
+    },
+    {
+      "key": "F3",
+      "sound_path": "",
+      "sound_name": "",
+      "volume": 100
+    },
+    {
+      "key": "F4",
+      "sound_path": "",
+      "sound_name": "",
+      "volume": 100
+    },
+    {
+      "key": "F5",
+      "sound_path": "",
+      "sound_name": "",
+      "volume": 100
+    },
+    {
+      "key": "F6",
+      "sound_path": "",
+      "sound_name": "",
+      "volume": 100
+    },
+    {
+      "key": "F7",
+      "sound_path": "",
+      "sound_name": "",
+      "volume": 100
+    },
+    {
+      "key": "F8",
+      "sound_path": "",
+      "sound_name": "",
+      "volume": 100
+    },
+    {
+      "key": "F9",
+      "sound_path": "",
+      "sound_name": "",
+      "volume": 100
+    },
+    {
+      "key": "F10",
+      "sound_path": "",
+      "sound_name": "",
+      "volume": 100
+    },
+    {
+      "key": "F11",
+      "sound_path": "",
+      "sound_name": "",
+      "volume": 100
+    },
+    {
+      "key": "F12",
+      "sound_path": "",
+      "sound_name": "",
+      "volume": 100
+    },
+    {
+      "key": "1",
+      "sound_path": "",
+      "sound_name": "",
+      "volume": 100
+    },
+    {
+      "key": "2",
+      "sound_path": "",
+      "sound_name": "",
+      "volume": 80
+    },
+    {
+      "key": "3",
+      "sound_path": "",
+      "sound_name": "",
+      "volume": 80
+    },
+    {
+      "key": "4",
+      "sound_path": "",
+      "sound_name": "",
+      "volume": 80
+    },
+    {
+      "key": "5",
+      "sound_path": "",
+      "sound_name": "",
+      "volume": 80
+    },
+    {
+      "key": "6",
+      "sound_path": "",
+      "sound_name": "",
+      "volume": 80
+    },
+    {
+      "key": "7",
+      "sound_path": "",
+      "sound_name": "",
+      "volume": 80
+    },
+    {
+      "key": "8",
+      "sound_path": "",
+      "sound_name": "",
+      "volume": 80
+    },
+    {
+      "key": "9",
+      "sound_path": "",
+      "sound_name": "",
+      "volume": 80
+    },
+    {
+      "key": "0",
+      "sound_path": "",
+      "sound_name": "",
+      "volume": 80
+    },
+    {
+      "key": "Q",
+      "sound_path": "",
+      "sound_name": "",
+      "volume": 80
+    },
+    {
+      "key": "W",
+      "sound_path": "",
+      "sound_name": "",
+      "volume": 80
+    },
+    {
+      "key": "E",
+      "sound_path": "",
+      "sound_name": "",
+      "volume": 100
+    },
+    {
+      "key": "R",
+      "sound_path": "",
+      "sound_name": "",
+      "volume": 100
+    },
+    {
+      "key": "T",
+      "sound_path": "",
+      "sound_name": "",
+      "volume": 100
+    },
+    {
+      "key": "Y",
+      "sound_path": "",
+      "sound_name": "",
+      "volume": 100
+    },
+    {
+      "key": "U",
+      "sound_path": "",
+      "sound_name": "",
+      "volume": 100
+    },
+    {
+      "key": "I",
+      "sound_path": "",
+      "sound_name": "",
+      "volume": 100
+    },
+    {
+      "key": "O",
+      "sound_path": "",
+      "sound_name": "",
+      "volume": 100
+    },
+    {
+      "key": "P",
+      "sound_path": "",
+      "sound_name": "",
+      "volume": 100
+    },
+    {
+      "key": "A",
+      "sound_path": "",
+      "sound_name": "",
+      "volume": 100
+    },
+    {
+      "key": "S",
+      "sound_path": "",
+      "sound_name": "",
+      "volume": 100
+    },
+    {
+      "key": "D",
+      "sound_path": "",
+      "sound_name": "",
+      "volume": 100
+    },
+    {
+      "key": "F",
+      "sound_path": "",
+      "sound_name": "",
+      "volume": 100
+    },
+    {
+      "key": "G",
+      "sound_path": "",
+      "sound_name": "",
+      "volume": 100
+    },
+    {
+      "key": "H",
+      "sound_path": "",
+      "sound_name": "",
+      "volume": 100
+    },
+    {
+      "key": "J",
+      "sound_path": "",
+      "sound_name": "",
+      "volume": 100
+    },
+    {
+      "key": "K",
+      "sound_path": "",
+      "sound_name": "",
+      "volume": 100
+    },
+    {
+      "key": "L",
+      "sound_path": "",
+      "sound_name": "",
+      "volume": 100
+    },
+    {
+      "key": "Z",
+      "sound_path": "",
+      "sound_name": "",
+      "volume": 100
+    },
+    {
+      "key": "X",
+      "sound_path": "",
+      "sound_name": "",
+      "volume": 100
+    },
+    {
+      "key": "C",
+      "sound_path": "",
+      "sound_name": "",
+      "volume": 100
+    },
+    {
+      "key": "V",
+      "sound_path": "",
+      "sound_name": "",
+      "volume": 100
+    },
+    {
+      "key": "B",
+      "sound_path": "",
+      "sound_name": "",
+      "volume": 100
+    },
+    {
+      "key": "N",
+      "sound_path": "",
+      "sound_name": "",
+      "volume": 100
+    },
+    {
+      "key": "M",
+      "sound_path": "",
+      "sound_name": "",
+      "volume": 100
+    },
+    {
+      "key": "Num7",
+      "sound_path": "",
+      "sound_name": "",
+      "volume": 100
+    },
+    {
+      "key": "Num8",
+      "sound_path": "",
+      "sound_name": "",
+      "volume": 100
+    },
+    {
+      "key": "Num9",
+      "sound_path": "",
+      "sound_name": "",
+      "volume": 100
+    },
+    {
+      "key": "Num4",
+      "sound_path": "",
+      "sound_name": "",
+      "volume": 100
+    },
+    {
+      "key": "Num5",
+      "sound_path": "",
+      "sound_name": "",
+      "volume": 100
+    },
+    {
+      "key": "Num6",
+      "sound_path": "",
+      "sound_name": "",
+      "volume": 100
+    },
+    {
+      "key": "Num1",
+      "sound_path": "",
+      "sound_name": "",
+      "volume": 100
+    },
+    {
+      "key": "Num2",
+      "sound_path": "",
+      "sound_name": "",
+      "volume": 100
+    },
+    {
+      "key": "Num3",
+      "sound_path": "",
+      "sound_name": "",
+      "volume": 100
+    },
+    {
+      "key": "Num0",
+      "sound_path": "",
+      "sound_name": "",
+      "volume": 100
+    },
+    {
+      "key": "Num.",
+      "sound_path": "",
+      "sound_name": "",
+      "volume": 100
+    },
+    {
+      "key": "Num+",
+      "sound_path": "",
+      "sound_name": "",
+      "volume": 100
+    }
+  ]
+}
