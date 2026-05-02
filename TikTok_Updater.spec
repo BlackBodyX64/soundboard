@@ -2,10 +2,10 @@
 
 
 a = Analysis(
-    ['soundboard.py'],
+    ['version.py'],
     pathex=[],
     binaries=[],
-    datas=[('sounds', 'sounds')],
+    datas=[],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
@@ -22,7 +22,7 @@ exe = EXE(
     a.binaries,
     a.datas,
     [],
-    name='TikTok_Soundboard',
+    name='TikTok_Updater',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,

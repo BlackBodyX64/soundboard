@@ -34,10 +34,14 @@ jobs:
 
       - name: Build executable with PyInstaller
         run: |
-          pyinstaller --onefile --windowed `
+          python -m PyInstaller --onefile --windowed `
             --name "TikTok_Soundboard" `
             --hidden-import "windnd" `
             soundboard.py
+            
+          python -m PyInstaller --onefile --windowed `
+            --name "TikTok_Updater" `
+            version.py
 
       - name: Verify build output
         run: |
@@ -45,13 +49,19 @@ jobs:
             Write-Error "Build failed: TikTok_Soundboard.exe not found"
             exit 1
           }
-          $size = (Get-Item "dist\TikTok_Soundboard.exe").Length / 1MB
-          Write-Host "Build successful! Size: $([math]::Round($size, 2)) MB"
+          if (!(Test-Path "dist\TikTok_Updater.exe")) {
+            Write-Error "Build failed: TikTok_Updater.exe not found"
+            exit 1
+          }
+          $size1 = (Get-Item "dist\TikTok_Soundboard.exe").Length / 1MB
+          $size2 = (Get-Item "dist\TikTok_Updater.exe").Length / 1MB
+          Write-Host "Build successful! Main Size: $([math]::Round($size1, 2)) MB, Updater Size: $([math]::Round($size2, 2)) MB"
 
       - name: Create release package
         run: |
           New-Item -ItemType Directory -Path "release" -Force
           Copy-Item "dist\TikTok_Soundboard.exe" "release\"
+          Copy-Item "dist\TikTok_Updater.exe" "release\"
           Copy-Item "soundboard_config.json" "release\" -ErrorAction SilentlyContinue
           if (Test-Path "sounds") { Copy-Item "sounds" "release\sounds" -Recurse -ErrorAction SilentlyContinue }
           Copy-Item "README.md" "release\" -ErrorAction SilentlyContinue
@@ -63,6 +73,7 @@ jobs:
           name: TikTok_Soundboard
           path: |
             dist/TikTok_Soundboard.exe
+            dist/TikTok_Updater.exe
             soundboard_config.json
           retention-days: 30
 

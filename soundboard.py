@@ -155,6 +155,11 @@ class SoundboardApp(ctk.CTk):
                        font=("Segoe UI", 11, "bold"),
                        command=self._stop_all).pack(side="right", padx=5)
 
+        ctk.CTkButton(header, text="🔄 อัปเดต", width=90, height=30,
+                       fg_color="#238636", hover_color="#2ea043",
+                       font=("Segoe UI", 11, "bold"),
+                       command=self._open_updater).pack(side="right", padx=5)
+
         # ---- Volume + hint bar ----
         vol_bar = ctk.CTkFrame(self, fg_color="#161b22", corner_radius=0, height=38)
         vol_bar.pack(fill="x", pady=(1, 0))
@@ -477,6 +482,30 @@ class SoundboardApp(ctk.CTk):
             self._register_hotkeys()
         else:
             self._unregister_hotkeys()
+
+    def _open_updater(self):
+        import subprocess
+        updater_path = "TikTok_Updater.exe"
+        if getattr(sys, "frozen", False):
+            app_dir = os.path.dirname(sys.executable)
+            updater_path = os.path.join(app_dir, updater_path)
+        else:
+            updater_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "version.py")
+            if not os.path.exists(updater_path):
+                print("Updater script not found.")
+                return
+
+        try:
+            if updater_path.endswith(".py"):
+                subprocess.Popen([sys.executable, updater_path])
+            else:
+                if os.path.exists(updater_path):
+                    subprocess.Popen([updater_path])
+                else:
+                    from tkinter import messagebox
+                    messagebox.showwarning("ไม่พบตัวอัปเดต", "ไม่พบไฟล์ TikTok_Updater.exe\nกรุณาดาวน์โหลดเวอร์ชันใหม่จาก GitHub ด้วยตนเอง")
+        except Exception as e:
+            print(f"Failed to launch updater: {e}")
 
     def _on_close(self):
         self._save_config()
