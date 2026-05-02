@@ -1,0 +1,87 @@
+name: Build & Release
+
+on:
+  push:
+    tags:
+      - "v*"          # Trigger on version tags: v1.0.0, v1.2.3, etc.
+
+  workflow_dispatch:   # Allow manual trigger from GitHub UI
+
+permissions:
+  contents: write      # Required for creating releases
+
+jobs:
+  build:
+    name: Build Windows Executable
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Build executable with PyInstaller
+        run: |
+          pyinstaller --onefile --windowed `
+            --name "TikTok_Soundboard" `
+            --hidden-import "windnd" `
+            --add-data "sounds;sounds" `
+            soundboard.py
+
+      - name: Verify build output
+        run: |
+          if (!(Test-Path "dist\TikTok_Soundboard.exe")) {
+            Write-Error "Build failed: TikTok_Soundboard.exe not found"
+            exit 1
+          }
+          $size = (Get-Item "dist\TikTok_Soundboard.exe").Length / 1MB
+          Write-Host "Build successful! Size: $([math]::Round($size, 2)) MB"
+
+      - name: Create release package
+        run: |
+          New-Item -ItemType Directory -Path "release" -Force
+          Copy-Item "dist\TikTok_Soundboard.exe" "release\"
+          Copy-Item "soundboard_config.json" "release\" -ErrorAction SilentlyContinue
+          if (Test-Path "sounds") { Copy-Item "sounds" "release\sounds" -Recurse -ErrorAction SilentlyContinue }
+          Copy-Item "README.md" "release\" -ErrorAction SilentlyContinue
+          Compress-Archive -Path "release\*" -DestinationPath "TikTok_Soundboard_${{ github.ref_name }}.zip"
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: TikTok_Soundboard
+          path: |
+            dist/TikTok_Soundboard.exe
+            soundboard_config.json
+          retention-days: 30
+
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "TikTok Soundboard ${{ github.ref_name }}"
+          body: |
+            ## 🎵 TikTok Soundboard ${{ github.ref_name }}
+
+            ### ดาวน์โหลด
+            แตกไฟล์ `.zip` แล้วเปิด `TikTok_Soundboard.exe` ได้เลย
+
+            ### วิธีใช้
+            1. เปิดโปรแกรม TikTok_Soundboard.exe
+            2. ลากไฟล์เสียงวางบนปุ่มที่ต้องการ
+            3. กดปุ่มหรือ Hotkey เพื่อเล่นเสียง
+
+            ### System Requirements
+            - Windows 10/11 (64-bit)
+          draft: false
+          prerelease: false
+          files: TikTok_Soundboard_${{ github.ref_name }}.zip
+          generate_release_notes: true

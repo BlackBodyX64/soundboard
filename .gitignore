@@ -26,5 +26,8 @@ venv.bak/
 *.swp
 *.swo
 
+# Build output
+release/
+
 # Project specific
 *.log
