@@ -1,36 +1,33 @@
-# Byte-compiled / optimized / DLL files
-__pycache__/
-*.py[cod]
-*$py.class
+# Build output
+bin/
+obj/
+publish_output/
+release/
+release_zip/
+[Dd]ebug/
+[Rr]elease/
 
-# Distribution / packaging
-build/
-dist/
-
-# PyInstaller
-# spec files can be stored in git or ignored. We leave TikTok_Soundboard.spec tracked.
-# *.spec
-
-# Environments
-.env
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
 
 # IDEs / Editors
+.vs/
 .vscode/
 .idea/
-*.swp
-*.swo
 
-# Node
-node_modules/
-
-# Build output
-release/
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
 
 # Project specific
 *.log
+

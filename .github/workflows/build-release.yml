@@ -19,51 +19,37 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
         with:
-          python-version: "3.11"
-          cache: "pip"
+          dotnet-version: '8.0.x'
 
-      - name: Install dependencies
-        run: pip install -r requirements.txt
-
-      - name: Ensure sounds directory exists
-        run: |
-          if (!(Test-Path "sounds")) { New-Item -ItemType Directory -Path "sounds" -Force }
-
-      - name: Build executable with PyInstaller
-        run: |
-          pyinstaller --onefile --windowed `
-            --name "TikTok_Soundboard" `
-            --hidden-import "windnd" `
-            soundboard.py
+      - name: Publish application (Single File)
+        run: dotnet publish TikTokSoundboard/TikTokSoundboard.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o publish_output
 
       - name: Verify build output
         run: |
-          if (!(Test-Path "dist\TikTok_Soundboard.exe")) {
-            Write-Error "Build failed: TikTok_Soundboard.exe not found"
+          if (!(Test-Path "publish_output\TikTokSoundboard.exe")) {
+            Write-Error "Build failed: TikTokSoundboard.exe not found"
             exit 1
           }
-          $size = (Get-Item "dist\TikTok_Soundboard.exe").Length / 1MB
+          $size = (Get-Item "publish_output\TikTokSoundboard.exe").Length / 1MB
           Write-Host "Build successful! Size: $([math]::Round($size, 2)) MB"
 
       - name: Create release package
         run: |
-          New-Item -ItemType Directory -Path "release" -Force
-          Copy-Item "dist\TikTok_Soundboard.exe" "release\"
-          Copy-Item "soundboard_config.json" "release\" -ErrorAction SilentlyContinue
-          if (Test-Path "sounds") { Copy-Item "sounds" "release\sounds" -Recurse -ErrorAction SilentlyContinue }
-          Copy-Item "README.md" "release\" -ErrorAction SilentlyContinue
-          Compress-Archive -Path "release\*" -DestinationPath "TikTok_Soundboard_${{ github.ref_name }}.zip"
+          New-Item -ItemType Directory -Path "release_zip" -Force
+          Copy-Item "publish_output\*" "release_zip\" -Recurse
+          if (Test-Path "soundboard_config.json") { Copy-Item "soundboard_config.json" "release_zip\" -ErrorAction SilentlyContinue }
+          if (Test-Path "sounds") { Copy-Item "sounds" "release_zip\sounds" -Recurse -ErrorAction SilentlyContinue }
+          if (Test-Path "README.md") { Copy-Item "README.md" "release_zip\" -ErrorAction SilentlyContinue }
+          Compress-Archive -Path "release_zip\*" -DestinationPath "TikTok_Soundboard_${{ github.ref_name }}.zip"
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
           name: TikTok_Soundboard
-          path: |
-            dist/TikTok_Soundboard.exe
-            soundboard_config.json
+          path: publish_output\TikTokSoundboard.exe
           retention-days: 30
 
       - name: Create GitHub Release
@@ -72,14 +58,14 @@ jobs:
         with:
           name: "TikTok Soundboard ${{ github.ref_name }}"
           body: |
-            ## 🎵 TikTok Soundboard ${{ github.ref_name }}
+            ## 🎵 TikTok Soundboard ${{ github.ref_name }} (WPF Version)
 
             ### ดาวน์โหลด
-            แตกไฟล์ `.zip` แล้วเปิด `TikTok_Soundboard.exe` ได้เลย
+            แตกไฟล์ `.zip` แล้วเปิด `TikTokSoundboard.exe` ได้เลย
 
             ### วิธีใช้
-            1. เปิดโปรแกรม TikTok_Soundboard.exe
-            2. ลากไฟล์เสียงวางบนปุ่มที่ต้องการ
+            1. เปิดโปรแกรม TikTokSoundboard.exe
+            2. ลากไฟล์เสียงวางบนปุ่มที่ต้องการ หรือคลิกขวาเพื่อตั้งค่า
             3. กดปุ่มหรือ Hotkey เพื่อเล่นเสียง
 
             ### System Requirements
