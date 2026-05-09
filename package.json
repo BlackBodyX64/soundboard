@@ -1,0 +1,52 @@
+{
+  "name": "tiktok-soundboard",
+  "version": "1.0.0",
+  "description": "TikTok Livestream Soundboard - Electron",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev",
+    "build": "electron-builder --win",
+    "pack": "electron-builder --dir"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BlackBodyX64/soundboard.git"
+  },
+  "keywords": [
+    "soundboard",
+    "tiktok",
+    "livestream",
+    "audio"
+  ],
+  "author": "BlackBodyX64",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/BlackBodyX64/soundboard/issues"
+  },
+  "homepage": "https://github.com/BlackBodyX64/soundboard#readme",
+  "devDependencies": {
+    "electron": "^42.0.1",
+    "electron-builder": "^26.8.1"
+  },
+  "build": {
+    "appId": "com.blackbodyx64.soundboard",
+    "productName": "TikTok Soundboard",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "index.html",
+      "style.css",
+      "renderer.js",
+      "icon.png"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "icon.png"
+    }
+  }
+}

@@ -26,6 +26,9 @@ venv.bak/
 *.swp
 *.swo
 
+# Node
+node_modules/
+
 # Build output
 release/
 
