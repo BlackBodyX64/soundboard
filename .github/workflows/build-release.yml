@@ -43,7 +43,9 @@ jobs:
           if (Test-Path "soundboard_config.json") { Copy-Item "soundboard_config.json" "release_zip\" -ErrorAction SilentlyContinue }
           if (Test-Path "sounds") { Copy-Item "sounds" "release_zip\sounds" -Recurse -ErrorAction SilentlyContinue }
           if (Test-Path "README.md") { Copy-Item "README.md" "release_zip\" -ErrorAction SilentlyContinue }
-          Compress-Archive -Path "release_zip\*" -DestinationPath "TikTok_Soundboard_${{ github.ref_name }}.zip"
+          
+          # Create 7-Zip Self-Extracting Archive (SFX)
+          7z a -sfx7z.sfx "TikTok_Soundboard_${{ github.ref_name }}.exe" ".\release_zip\*"
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
@@ -61,7 +63,7 @@ jobs:
             ## 🎵 TikTok Soundboard ${{ github.ref_name }} (WPF Version)
 
             ### ดาวน์โหลด
-            แตกไฟล์ `.zip` แล้วเปิด `TikTokSoundboard.exe` ได้เลย
+            โหลดไฟล์ `TikTok_Soundboard_${{ github.ref_name }}.exe` ตัวนี้เปิดปุ๊บ มันจะถามว่าจะให้แตกไฟล์ (Extract) ไว้ที่ไหน เมื่อแตกไฟล์เสร็จให้เข้าไปเปิด `TikTokSoundboard.exe` ในโฟลเดอร์นั้นได้เลยครับ
 
             ### วิธีใช้
             1. เปิดโปรแกรม TikTokSoundboard.exe
@@ -72,5 +74,5 @@ jobs:
             - Windows 10/11 (64-bit)
           draft: false
           prerelease: false
-          files: TikTok_Soundboard_${{ github.ref_name }}.zip
+          files: TikTok_Soundboard_${{ github.ref_name }}.exe
           generate_release_notes: true
