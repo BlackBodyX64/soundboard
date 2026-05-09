@@ -296,7 +296,8 @@ class SoundboardApp(ctk.CTk):
         for f in files:
             path = f.decode("utf-8") if isinstance(f, bytes) else str(f)
             if os.path.splitext(path)[1].lower() in AUDIO_EXTS:
-                self._assign_sound(key, path)
+                # Schedule on main thread — windnd calls this from a background thread
+                self.after(0, lambda p=path, k=key: self._assign_sound(k, p))
                 return
 
     def _on_global_drop(self, files):
@@ -307,6 +308,10 @@ class SoundboardApp(ctk.CTk):
             path = f.decode("utf-8") if isinstance(f, bytes) else str(f)
             if os.path.splitext(path)[1].lower() in AUDIO_EXTS:
                 audio.append(path)
+        # Schedule on main thread — windnd calls this from a background thread
+        self.after(0, lambda a=list(audio): self._assign_global_drop(a))
+
+    def _assign_global_drop(self, audio):
         empty = [k for row in [FKEY_ROW] + KB_ROWS + NUMPAD_ROWS
                  for k in row if not self.pads[k].sound_path]
         for path, key in zip(audio, empty):

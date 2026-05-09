@@ -18,7 +18,7 @@ import customtkinter as ctk
 from tkinter import messagebox
 
 # ===================== Configuration =====================
-CURRENT_VERSION = "1.1.1"
+CURRENT_VERSION = "1.1.2"
 GITHUB_OWNER = "BlackBodyX64"
 GITHUB_REPO = "soundboard"
 GITHUB_API_URL = f"https://api.github.com/repos/{GITHUB_OWNER}/{GITHUB_REPO}/releases/latest"
