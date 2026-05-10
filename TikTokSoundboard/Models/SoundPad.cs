@@ -15,12 +15,23 @@ public class SoundPad
 
     [JsonPropertyName("volume")]
     public int Volume { get; set; } = 100;
+
+    /// <summary>Playback start time in seconds. -1 = beginning of file.</summary>
+    [JsonPropertyName("start_time")]
+    public double StartTime { get; set; } = -1;
+
+    /// <summary>Playback end time in seconds. -1 = end of file.</summary>
+    [JsonPropertyName("end_time")]
+    public double EndTime { get; set; } = -1;
 }
 
 public class SoundboardConfig
 {
     [JsonPropertyName("master_volume")]
     public int MasterVolume { get; set; } = 80;
+
+    [JsonPropertyName("download_directory")]
+    public string DownloadDirectory { get; set; } = "";
 
     [JsonPropertyName("pads")]
     public List<SoundPad> Pads { get; set; } = new();

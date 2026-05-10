@@ -33,17 +33,17 @@
                     <TextBlock x:Name="KeyLabel"
                                Text="{Binding DisplayText, ElementName=Root}"
                                FontFamily="Segoe UI Semibold"
-                               FontSize="14"
+                               FontSize="17"
                                Foreground="#8b949e"
                                HorizontalAlignment="Center"/>
                     <TextBlock x:Name="SoundNameLabel"
                                Text=""
                                FontFamily="Segoe UI"
-                               FontSize="9"
+                               FontSize="11"
                                Foreground="#6e7681"
                                HorizontalAlignment="Center"
                                TextTrimming="CharacterEllipsis"
-                               MaxWidth="60"
+                               MaxWidth="80"
                                Margin="0,2,0,0"/>
                 </StackPanel>
 

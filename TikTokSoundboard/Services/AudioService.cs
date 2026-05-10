@@ -46,8 +46,11 @@ public class AudioService : IDisposable
 
     /// <summary>
     /// Play a sound file. Returns true on success.
+    /// startTime / endTime are in seconds; use -1 for start/end of file.
     /// </summary>
-    public bool PlaySound(string key, string filePath, int volume, Action? onCompleted = null)
+    public bool PlaySound(string key, string filePath, int volume,
+        double startTime = -1, double endTime = -1,
+        Action? onCompleted = null)
     {
         if (string.IsNullOrEmpty(filePath) || !File.Exists(filePath))
             return false;
@@ -59,6 +62,26 @@ public class AudioService : IDisposable
 
             // Use MediaFoundationReader instead of AudioFileReader to avoid ACM errors
             var reader = new MediaFoundationReader(filePath);
+
+            // Seek to start time
+            if (startTime > 0)
+            {
+                var seekPos = TimeSpan.FromSeconds(startTime);
+                if (seekPos < reader.TotalTime)
+                    reader.CurrentTime = seekPos;
+            }
+
+            // Determine end sample position for early-stop
+            long endBytes = reader.Length; // default: play to end
+            if (endTime > 0)
+            {
+                var endTs = TimeSpan.FromSeconds(endTime);
+                if (endTs > reader.CurrentTime && endTs <= reader.TotalTime)
+                {
+                    double ratio = endTs.TotalSeconds / reader.TotalTime.TotalSeconds;
+                    endBytes = (long)(reader.Length * ratio);
+                }
+            }
 
             // Convert to IEEE Float SampleProvider
             ISampleProvider sampleProvider = reader.ToSampleProvider();
@@ -78,8 +101,8 @@ public class AudioService : IDisposable
                 Volume = (volume / 100f) * _masterVolume
             };
 
-            // Use a timer to poll for completion
-            var timer = new System.Timers.Timer(100);
+            // Use a timer to poll for completion / end-time
+            var timer = new System.Timers.Timer(50);
 
             // Wrap to detect end of playback
             var notifying = new NotifyingSampleProvider(volumeProvider);
@@ -97,7 +120,8 @@ public class AudioService : IDisposable
             {
                 try
                 {
-                    if (reader.Position >= reader.Length)
+                    bool finished = reader.Position >= reader.Length || reader.Position >= endBytes;
+                    if (finished)
                     {
                         timer.Stop();
                         timer.Dispose();

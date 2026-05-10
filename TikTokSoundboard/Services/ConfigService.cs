@@ -18,6 +18,8 @@ public static class ConfigService
 
     public static SoundboardConfig Load()
     {
+        var result = new SoundboardConfig();
+        
         try
         {
             string? json = null;
@@ -30,7 +32,10 @@ public static class ConfigService
             if (json != null)
             {
                 var config = JsonSerializer.Deserialize<SoundboardConfig>(json);
-                if (config != null) return config;
+                if (config != null)
+                {
+                    result = config;
+                }
             }
         }
         catch (Exception ex)
@@ -38,7 +43,12 @@ public static class ConfigService
             System.Diagnostics.Debug.WriteLine($"ConfigService.Load error: {ex.Message}");
         }
 
-        return new SoundboardConfig();
+        if (string.IsNullOrWhiteSpace(result.DownloadDirectory))
+        {
+            result.DownloadDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "TikTokSoundboardDownloads");
+        }
+
+        return result;
     }
 
     public static void Save(SoundboardConfig config)

@@ -1,0 +1,155 @@
+<Window x:Class="TikTokSoundboard.DownloadDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="ดาวน์โหลดเสียง"
+        Width="520" Height="340"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        Background="#0d1117"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        BorderBrush="#30363d"
+        BorderThickness="1"
+        Icon="pack://application:,,,/icon.ico">
+
+    <Border CornerRadius="10" Background="#0d1117" ClipToBounds="True">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Title bar -->
+            <Border Grid.Row="0" Background="#161b22" Padding="16,10"
+                    MouseLeftButtonDown="OnTitleBarDrag" CornerRadius="10,10,0,0">
+                <Grid>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="📥" FontSize="18" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <TextBlock Text="ดาวน์โหลดจาก YouTube / TikTok"
+                                   FontFamily="Segoe UI"
+                                   FontSize="15" FontWeight="Bold"
+                                   Foreground="#58a6ff" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <Button Content="✕" HorizontalAlignment="Right"
+                            Width="28" Height="28"
+                            Background="Transparent" Foreground="#8b949e"
+                            BorderThickness="0" FontSize="14"
+                            Click="OnCloseClick" Cursor="Hand">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Foreground" Value="#f85149"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                </Grid>
+            </Border>
+
+            <!-- Body -->
+            <StackPanel Grid.Row="1" Margin="20,16">
+                <!-- Platform badges -->
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                    <Border Background="#1a1a2e" CornerRadius="12" Padding="10,4" Margin="0,0,8,0"
+                            BorderBrush="#30363d" BorderThickness="1">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="▶" Foreground="#FF0000" FontSize="12" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                            <TextBlock Text="YouTube" Foreground="#c9d1d9" FontSize="11" FontFamily="Segoe UI"
+                                       FontWeight="SemiBold" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Background="#1a1a2e" CornerRadius="12" Padding="10,4"
+                            BorderBrush="#30363d" BorderThickness="1">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="♪" Foreground="#69C9D0" FontSize="12" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                            <TextBlock Text="TikTok" Foreground="#c9d1d9" FontSize="11" FontFamily="Segoe UI"
+                                       FontWeight="SemiBold" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+
+                <!-- URL Input -->
+                <TextBlock Text="วาง URL ที่นี่:" Foreground="#c9d1d9" FontSize="11"
+                           FontFamily="Segoe UI" FontWeight="SemiBold" Margin="0,0,0,6"/>
+                <TextBox x:Name="UrlBox"
+                         Background="#161b22" Foreground="#c9d1d9"
+                         BorderBrush="#30363d" FontFamily="Segoe UI" FontSize="13"
+                         Padding="10,8" Height="38"
+                         VerticalContentAlignment="Center"
+                         Text="" GotFocus="OnUrlBoxFocus">
+                    <TextBox.Style>
+                        <Style TargetType="TextBox">
+                            <Setter Property="CaretBrush" Value="#58a6ff"/>
+                        </Style>
+                    </TextBox.Style>
+                </TextBox>
+
+                <!-- Placeholder text below -->
+                <TextBlock Text="ตัวอย่าง: https://www.youtube.com/watch?v=... หรือ https://www.tiktok.com/@user/video/..."
+                           Foreground="#484f58" FontSize="10" FontFamily="Segoe UI"
+                           Margin="0,4,0,0" TextWrapping="Wrap"/>
+
+                <!-- Status -->
+                <Border Background="#0c1018" CornerRadius="8" Margin="0,14,0,0" Padding="12,10"
+                        BorderBrush="#21262d" BorderThickness="1">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock x:Name="StatusIcon" Grid.Column="0" Text="💡" FontSize="16"
+                                   VerticalAlignment="Center" Margin="0,0,10,0"/>
+                        <TextBlock x:Name="StatusText" Grid.Column="1"
+                                   Text="พร้อมดาวน์โหลด — วาง URL แล้วกดปุ่มดาวน์โหลด"
+                                   Foreground="#8b949e" FontSize="12" FontFamily="Segoe UI"
+                                   TextWrapping="Wrap" VerticalAlignment="Center"/>
+                    </Grid>
+                </Border>
+
+                <!-- Progress bar -->
+                <ProgressBar x:Name="ProgressBar" Height="4" Margin="0,10,0,0"
+                             IsIndeterminate="False" Value="0"
+                             Background="#21262d" Foreground="#58a6ff"
+                             BorderThickness="0" Visibility="Collapsed"/>
+            </StackPanel>
+
+            <!-- Buttons -->
+            <Grid Grid.Row="2" Margin="20,0,20,16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="8"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Button x:Name="DownloadBtn" Grid.Column="0" Height="40"
+                        FontFamily="Segoe UI" FontSize="13" FontWeight="Bold"
+                        Foreground="White" BorderThickness="0" Cursor="Hand"
+                        Click="OnDownloadClick">
+                    <Button.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="#238636" Offset="0"/>
+                            <GradientStop Color="#1a7f37" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Button.Background>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="📥" Margin="0,0,6,0"/>
+                        <TextBlock Text="ดาวน์โหลด"/>
+                    </StackPanel>
+                </Button>
+
+                <Button x:Name="CancelBtn" Grid.Column="2" Height="40"
+                        FontFamily="Segoe UI" FontSize="13" FontWeight="Bold"
+                        Foreground="White" BorderThickness="0" Cursor="Hand"
+                        Click="OnCancelClick" Background="#30363d">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="❌" Margin="0,0,6,0"/>
+                        <TextBlock Text="ยกเลิก"/>
+                    </StackPanel>
+                </Button>
+            </Grid>
+        </Grid>
+    </Border>
+</Window>

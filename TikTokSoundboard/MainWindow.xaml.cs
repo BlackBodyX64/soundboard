@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
@@ -46,10 +47,18 @@ public partial class MainWindow : Window
     private readonly AudioService _audio;
     private readonly GlobalHotkeyService _hotkeys;
     private SoundboardConfig _config = new();
+    
+    // Downloader State
+    private readonly YtDlpService _ytDlp = new();
+    private CancellationTokenSource? _downloadCts;
+    private readonly ObservableCollection<DownloadedItem> _downloadedItems = new();
+    private Point? _dragStartPoint;
 
     public MainWindow()
     {
         InitializeComponent();
+
+        DownloadsList.ItemsSource = _downloadedItems;
 
         _audio = new AudioService();
         _hotkeys = new GlobalHotkeyService();
@@ -240,7 +249,8 @@ public partial class MainWindow : Window
 
         _keyButtons[key].SetPlaying(true);
 
-        var success = _audio.PlaySound(key, pad.SoundPath, pad.Volume, () =>
+        var success = _audio.PlaySound(key, pad.SoundPath, pad.Volume,
+            pad.StartTime, pad.EndTime, () =>
         {
             Dispatcher.Invoke(() => _keyButtons[key].SetPlaying(false));
         });
@@ -281,6 +291,15 @@ public partial class MainWindow : Window
             : WindowState.Maximized;
     }
 
+    private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Escape)
+        {
+            OnStopAllClick(this, new RoutedEventArgs());
+            e.Handled = true;
+        }
+    }
+
     // ==================== Controls ====================
     private void OnStopAllClick(object sender, RoutedEventArgs e)
     {
@@ -313,4 +332,192 @@ public partial class MainWindow : Window
             if (KbRows[i].Contains(key)) return SectionColors[$"row{i}"];
         return SectionColors["numpad"];
     }
+
+    // ==================== Downloader ====================
+    private void OnMainUrlBoxFocus(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(MainUrlBox.Text) && Clipboard.ContainsText())
+            {
+                var clipText = Clipboard.GetText().Trim();
+                if (YtDlpService.IsSupportedUrl(clipText))
+                {
+                    MainUrlBox.Text = clipText;
+                    MainUrlBox.SelectAll();
+                }
+            }
+        }
+        catch { }
+    }
+
+    private async void OnMainDownloadClick(object sender, RoutedEventArgs e)
+    {
+        var url = MainUrlBox.Text.Trim();
+
+        if (string.IsNullOrWhiteSpace(url) || !YtDlpService.IsSupportedUrl(url))
+        {
+            SetMainStatus("⚠️ URL ไม่ถูกต้อง (รองรับ Youtube/Tiktok)", "#f0883e");
+            return;
+        }
+
+        if (_downloadCts != null)
+        {
+            // Cancel current download
+            _downloadCts.Cancel();
+            _downloadCts = null;
+            return;
+        }
+
+        MainDownloadBtn.Content = "❌";
+        MainDownloadBtn.Background = new SolidColorBrush(Color.FromRgb(0xda, 0x36, 0x33));
+        MainUrlBox.IsEnabled = false;
+        MainDownloadProgress.Visibility = Visibility.Visible;
+        MainDownloadStatus.Visibility = Visibility.Visible;
+
+        _downloadCts = new CancellationTokenSource();
+        var progress = new Progress<DownloadProgressInfo>(info =>
+        {
+            Dispatcher.Invoke(() => SetMainStatus(info.Message, "#58a6ff", info.Percentage));
+        });
+
+        try
+        {
+            SetMainStatus("กำลังดึงข้อมูล...", "#58a6ff", 0);
+            var title = await _ytDlp.GetTitleAsync(url, _downloadCts.Token);
+            if (!string.IsNullOrEmpty(title))
+                SetMainStatus($"กำลังดาวน์โหลด: {title}", "#58a6ff", 0);
+
+            var downloadDir = string.IsNullOrWhiteSpace(_config.DownloadDirectory) 
+                ? Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)
+                : _config.DownloadDirectory;
+
+            var filePath = await _ytDlp.DownloadAudioAsync(url, downloadDir, "mp3", progress, _downloadCts.Token);
+
+            if (!string.IsNullOrEmpty(filePath))
+            {
+                SetMainStatus("✅ ดาวน์โหลดสำเร็จ!", "#3fb950", 100);
+                var item = new DownloadedItem 
+                { 
+                    Name = !string.IsNullOrEmpty(title) ? title : Path.GetFileNameWithoutExtension(filePath), 
+                    Path = filePath 
+                };
+                _downloadedItems.Insert(0, item);
+                MainUrlBox.Text = "";
+            }
+            else
+            {
+                SetMainStatus("❌ ดาวน์โหลดไม่สำเร็จ", "#f85149", 0);
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            SetMainStatus("🚫 ยกเลิกการดาวน์โหลดแล้ว", "#8b949e", 0);
+        }
+        catch (Exception ex)
+        {
+            SetMainStatus($"❌ ข้อผิดพลาด: {ex.Message}", "#f85149", 0);
+        }
+        finally
+        {
+            ResetMainDownloader();
+        }
+    }
+
+    private void SetMainStatus(string msg, string colorHex, double percentage = -1)
+    {
+        MainDownloadStatus.Text = msg;
+        var color = (Color)ColorConverter.ConvertFromString(colorHex);
+        MainDownloadStatus.Foreground = new SolidColorBrush(color);
+        MainDownloadStatus.Visibility = Visibility.Visible;
+        
+        if (percentage >= 0)
+        {
+            MainDownloadProgress.IsIndeterminate = false;
+            MainDownloadProgress.Value = percentage;
+        }
+        else
+        {
+            MainDownloadProgress.IsIndeterminate = true;
+        }
+    }
+
+    private void ResetMainDownloader()
+    {
+        MainDownloadBtn.Content = "📥";
+        MainDownloadBtn.Background = new SolidColorBrush(Color.FromRgb(0x23, 0x86, 0x36));
+        MainUrlBox.IsEnabled = true;
+        MainDownloadProgress.Visibility = Visibility.Collapsed;
+        _downloadCts = null;
+    }
+
+    private void OnChooseDownloadFolderClick(object sender, RoutedEventArgs e)
+    {
+        // Use Win32 OpenFolderDialog if available (.NET 8 WPF)
+        var dialog = new Microsoft.Win32.OpenFolderDialog
+        {
+            Title = "เลือกโฟลเดอร์สำหรับเก็บไฟล์เสียงที่ดาวน์โหลด",
+            InitialDirectory = string.IsNullOrWhiteSpace(_config.DownloadDirectory) 
+                ? Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)
+                : _config.DownloadDirectory
+        };
+
+        if (dialog.ShowDialog() == true)
+        {
+            _config.DownloadDirectory = dialog.FolderName;
+            ConfigService.Save(_config);
+            SetMainStatus($"บันทึกที่: {dialog.FolderName}", "#3fb950");
+        }
+    }
+
+    // ==================== Drag & Drop ====================
+    private void OnDownloadListMouseDown(object sender, MouseButtonEventArgs e)
+    {
+        if (e.LeftButton == MouseButtonState.Pressed)
+        {
+            _dragStartPoint = e.GetPosition(null);
+        }
+    }
+
+    private void OnDownloadListMouseMove(object sender, MouseEventArgs e)
+    {
+        if (e.LeftButton == MouseButtonState.Pressed && _dragStartPoint.HasValue)
+        {
+            Vector diff = _dragStartPoint.Value - e.GetPosition(null);
+            
+            if (Math.Abs(diff.X) > SystemParameters.MinimumHorizontalDragDistance ||
+                Math.Abs(diff.Y) > SystemParameters.MinimumVerticalDragDistance)
+            {
+                // Find the ListBoxItem
+                var listBox = sender as ListBox;
+                var listViewItem = FindAncestor<ListBoxItem>((DependencyObject)e.OriginalSource);
+                
+                if (listViewItem != null && listViewItem.DataContext is DownloadedItem item)
+                {
+                    var data = new DataObject(DataFormats.FileDrop, new string[] { item.Path });
+                    DragDrop.DoDragDrop(listViewItem, data, DragDropEffects.Copy);
+                }
+            }
+        }
+    }
+
+    private static T? FindAncestor<T>(DependencyObject current) where T : DependencyObject
+    {
+        do
+        {
+            if (current is T ancestor)
+            {
+                return ancestor;
+            }
+            current = VisualTreeHelper.GetParent(current);
+        }
+        while (current != null);
+        return null;
+    }
+}
+
+public class DownloadedItem
+{
+    public string Name { get; set; } = "";
+    public string Path { get; set; } = "";
 }
