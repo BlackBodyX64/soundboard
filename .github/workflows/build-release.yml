@@ -44,14 +44,48 @@ jobs:
           if (Test-Path "sounds") { Copy-Item "sounds" "release_zip\sounds" -Recurse -ErrorAction SilentlyContinue }
           if (Test-Path "README.md") { Copy-Item "README.md" "release_zip\" -ErrorAction SilentlyContinue }
           
-          # Create 7-Zip Self-Extracting Archive (SFX)
-          7z a -sfx7z.sfx "TikTok_Soundboard_${{ github.ref_name }}.exe" ".\release_zip\*"
+      - name: Create Inno Setup Script
+        run: |
+          $appVersion = "${{ github.ref_name }}"
+          if ($appVersion -eq "") { $appVersion = "1.0.0" }
+          
+          $issContent = @"
+          [Setup]
+          AppName=TikTok Soundboard
+          AppVersion=$appVersion
+          DefaultDirName=C:\TikTokSoundboard
+          DefaultGroupName=TikTok Soundboard
+          UninstallDisplayIcon={app}\TikTokSoundboard.exe
+          Compression=lzma2
+          SolidCompression=yes
+          OutputDir=.
+          OutputBaseFilename=TikTok_Soundboard_Installer_${appVersion}
+          DisableProgramGroupPage=yes
+          PrivilegesRequired=admin
+          
+          [Tasks]
+          Name: `"desktopicon`"; Description: `"สร้าง Shortcut บน Desktop`"; GroupDescription: `"Additional icons:`";
+          
+          [Files]
+          Source: `"release_zip\*`"; DestDir: `"{app}`"; Flags: ignoreversion recursesubdirs createallsubdirs
+          
+          [Icons]
+          Name: `"{autodesktop}\TikTok Soundboard`"; Filename: `"{app}\TikTokSoundboard.exe`"; Tasks: desktopicon
+          Name: `"{group}\TikTok Soundboard`"; Filename: `"{app}\TikTokSoundboard.exe`"
+          Name: `"{group}\Uninstall TikTok Soundboard`"; Filename: `"{uninstallexe}`"
+          "@
+          
+          Set-Content -Path "installer.iss" -Value $issContent -Encoding UTF8
+
+      - name: Compile Installer
+        run: |
+          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" installer.iss
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: TikTok_Soundboard
-          path: publish_output\TikTokSoundboard.exe
+          name: TikTok_Soundboard_Installer
+          path: TikTok_Soundboard_Installer_*.exe
           retention-days: 30
 
       - name: Create GitHub Release
@@ -63,16 +97,18 @@ jobs:
             ## 🎵 TikTok Soundboard ${{ github.ref_name }} (WPF Version)
 
             ### ดาวน์โหลด
-            โหลดไฟล์ `TikTok_Soundboard_${{ github.ref_name }}.exe` ตัวนี้เปิดปุ๊บ มันจะถามว่าจะให้แตกไฟล์ (Extract) ไว้ที่ไหน เมื่อแตกไฟล์เสร็จให้เข้าไปเปิด `TikTokSoundboard.exe` ในโฟลเดอร์นั้นได้เลยครับ
+            โหลดไฟล์ `TikTok_Soundboard_Installer_${{ github.ref_name }}.exe` เพื่อทำการติดตั้งโปรแกรมลงในเครื่อง
+            ค่าเริ่มต้นโปรแกรมจะติดตั้งไปที่ `C:\TikTokSoundboard` และสร้าง Shortcut บน Desktop ให้ทันที
 
             ### วิธีใช้
-            1. เปิดโปรแกรม TikTokSoundboard.exe
+            1. เปิดโปรแกรม TikTok Soundboard จาก Shortcut บน Desktop
             2. ลากไฟล์เสียงวางบนปุ่มที่ต้องการ หรือคลิกขวาเพื่อตั้งค่า
-            3. กดปุ่มหรือ Hotkey เพื่อเล่นเสียง
+            3. สามารถใส่ URL จาก Youtube / Tiktok เพื่อดาวน์โหลดเสียงได้โดยตรง
+            4. กดปุ่มหรือ Hotkey เพื่อเล่นเสียง
 
             ### System Requirements
             - Windows 10/11 (64-bit)
           draft: false
           prerelease: false
-          files: TikTok_Soundboard_${{ github.ref_name }}.exe
+          files: TikTok_Soundboard_Installer_${{ github.ref_name }}.exe
           generate_release_notes: true
