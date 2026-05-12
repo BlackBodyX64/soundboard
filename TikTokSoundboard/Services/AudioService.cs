@@ -47,9 +47,10 @@ public class AudioService : IDisposable
     /// <summary>
     /// Play a sound file. Returns true on success.
     /// startTime / endTime are in seconds; use -1 for start/end of file.
+    /// speed is a percentage: 100 = normal, 200 = 2x, 50 = half.
     /// </summary>
     public bool PlaySound(string key, string filePath, int volume,
-        double startTime = -1, double endTime = -1,
+        double startTime = -1, double endTime = -1, int speed = 100,
         Action? onCompleted = null)
     {
         if (string.IsNullOrEmpty(filePath) || !File.Exists(filePath))
@@ -94,6 +95,11 @@ public class AudioService : IDisposable
             if (sampleProvider.WaveFormat.Channels == 1)
             {
                 sampleProvider = new MonoToStereoSampleProvider(sampleProvider);
+            }
+
+            if (speed != 100)
+            {
+                sampleProvider = new SpeedSampleProvider(sampleProvider, speed / 100f);
             }
 
             var volumeProvider = new VolumeSampleProvider(sampleProvider)

@@ -3,7 +3,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:ctrl="clr-namespace:TikTokSoundboard.Controls"
         Title="ตั้งค่า"
-        Width="540" Height="500"
+        Width="540" Height="540
+        "
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize"
         Background="#0d1117"
@@ -224,39 +225,69 @@
                                    HorizontalAlignment="Right" VerticalAlignment="Center"/>
                     </Grid>
 
+                    <!-- Speed -->
+                    <TextBlock Text="ความเร็ว:" Foreground="#c9d1d9" FontSize="13"
+                               FontFamily="Segoe UI" FontWeight="SemiBold" Margin="0,10,0,4"/>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="52"/>
+                        </Grid.ColumnDefinitions>
+                        <Slider x:Name="SpeedSlider" Grid.Column="0"
+                                Minimum="25" Maximum="400" Value="100"
+                                TickFrequency="5" IsSnapToTickEnabled="True"
+                                ValueChanged="OnSpeedChanged"/>
+                        <TextBlock x:Name="SpeedLabel" Grid.Column="1"
+                                   Text="100%" Foreground="#c9d1d9"
+                                   FontFamily="Consolas" FontSize="13" FontWeight="Bold"
+                                   HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                    </Grid>
+
                 </StackPanel>
             </ScrollViewer>
 
-            <!-- ===== Action buttons ===== -->
-            <Grid Grid.Row="2" Margin="20,10,20,14">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="8"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-                <Button Grid.Column="0" Content="💾 บันทึก" Height="42"
-                        FontFamily="Segoe UI" FontSize="14" FontWeight="Bold"
-                        Foreground="White" BorderThickness="0" Cursor="Hand"
-                        Click="OnSaveClick">
-                    <Button.Background>
-                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                            <GradientStop Color="#238636" Offset="0"/>
-                            <GradientStop Color="#1a7f37" Offset="1"/>
-                        </LinearGradientBrush>
-                    </Button.Background>
-                </Button>
-                <Button Grid.Column="2" Content="🗑 ล้าง" Height="42"
-                        FontFamily="Segoe UI" FontSize="14" FontWeight="Bold"
-                        Foreground="White" BorderThickness="0" Cursor="Hand"
-                        Click="OnClearClick">
-                    <Button.Background>
-                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                            <GradientStop Color="#da3633" Offset="0"/>
-                            <GradientStop Color="#b92d2d" Offset="1"/>
-                        </LinearGradientBrush>
-                    </Button.Background>
-                </Button>
-            </Grid>
+                    <Grid Grid.Row="2" Margin="20,10,20,14">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="8"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="8"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Button Grid.Column="0" Content="💾 บันทึก" Height="42"
+                                FontFamily="Segoe UI" FontSize="14" FontWeight="Bold"
+                                Foreground="White" BorderThickness="0" Cursor="Hand"
+                                Click="OnSaveClick">
+                            <Button.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                    <GradientStop Color="#238636" Offset="0"/>
+                                    <GradientStop Color="#1a7f37" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Button.Background>
+                        </Button>
+                        <Button Grid.Column="2" Content="📦 ย้าย" Height="42"
+                                FontFamily="Segoe UI" FontSize="14" FontWeight="Bold"
+                                Foreground="White" BorderThickness="0" Cursor="Hand"
+                                Click="OnMoveClick">
+                            <Button.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                    <GradientStop Color="#58a6ff" Offset="0"/>
+                                    <GradientStop Color="#1a7fbf" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Button.Background>
+                        </Button>
+                        <Button Grid.Column="4" Content="🗑 ล้าง" Height="42"
+                                FontFamily="Segoe UI" FontSize="14" FontWeight="Bold"
+                                Foreground="White" BorderThickness="0" Cursor="Hand"
+                                Click="OnClearClick">
+                            <Button.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                    <GradientStop Color="#da3633" Offset="0"/>
+                                    <GradientStop Color="#b92d2d" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Button.Background>
+                        </Button>
+                    </Grid>
         </Grid>
     </Border>
 </Window>

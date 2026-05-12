@@ -216,8 +216,34 @@ public partial class MainWindow : Window
 
         if (dlg.ShowDialog() == true)
         {
-            _pads[key] = dlg.Pad;
-            _keyButtons[key].UpdateDisplay(dlg.Pad.SoundName, !string.IsNullOrEmpty(dlg.Pad.SoundPath));
+            if (!string.IsNullOrEmpty(dlg.TargetKey))
+            {
+                string oldKey = key;
+                string newKey = dlg.TargetKey;
+
+                // 1. Assign the edited pad to the new key
+                var movedPad = dlg.Pad;
+                movedPad.Key = newKey;
+                _pads[newKey] = movedPad;
+
+                // 2. Clear the old key if it's different
+                if (oldKey != newKey)
+                {
+                    _pads[oldKey] = new SoundPad { Key = oldKey };
+                }
+
+                // Update UI displays
+                _keyButtons[newKey].UpdateDisplay(movedPad.SoundName, !string.IsNullOrEmpty(movedPad.SoundPath));
+                if (oldKey != newKey)
+                {
+                    _keyButtons[oldKey].UpdateDisplay("", false);
+                }
+            }
+            else
+            {
+                _pads[key] = dlg.Pad;
+                _keyButtons[key].UpdateDisplay(dlg.Pad.SoundName, !string.IsNullOrEmpty(dlg.Pad.SoundPath));
+            }
             SaveConfig();
             UpdateRegisteredHotkeys();
         }
@@ -250,7 +276,7 @@ public partial class MainWindow : Window
         _keyButtons[key].SetPlaying(true);
 
         var success = _audio.PlaySound(key, pad.SoundPath, pad.Volume,
-            pad.StartTime, pad.EndTime, () =>
+            pad.StartTime, pad.EndTime, pad.Speed, () =>
         {
             Dispatcher.Invoke(() => _keyButtons[key].SetPlaying(false));
         });

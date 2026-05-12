@@ -23,6 +23,10 @@ public class SoundPad
     /// <summary>Playback end time in seconds. -1 = end of file.</summary>
     [JsonPropertyName("end_time")]
     public double EndTime { get; set; } = -1;
+
+    /// <summary>Playback speed percentage. 100 = normal speed.</summary>
+    [JsonPropertyName("speed")]
+    public int Speed { get; set; } = 100;
 }
 
 public class SoundboardConfig

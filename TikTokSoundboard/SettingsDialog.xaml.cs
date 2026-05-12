@@ -15,6 +15,7 @@ public partial class SettingsDialog : Window
     public SoundPad Pad { get; private set; }
     public bool Saved   { get; private set; }
     public bool Cleared { get; private set; }
+    public string? TargetKey { get; private set; }
 
     private double _fileDuration;
 
@@ -33,7 +34,8 @@ public partial class SettingsDialog : Window
             SoundName = pad.SoundName,
             Volume    = pad.Volume,
             StartTime = pad.StartTime,
-            EndTime   = pad.EndTime
+            EndTime   = pad.EndTime,
+            Speed     = pad.Speed
         };
 
         TitleText.Text      = $"⚙ ตั้งค่าปุ่ม [ {pad.Key} ]";
@@ -41,6 +43,8 @@ public partial class SettingsDialog : Window
         DisplayNameBox.Text = pad.SoundName;
         VolumeSlider.Value  = pad.Volume;
         VolumeLabel.Text    = $"{pad.Volume}%";
+        SpeedSlider.Value   = pad.Speed;
+        SpeedLabel.Text     = $"{pad.Speed}%";
 
         Waveform.TrimChanged += OnTrimChanged;
 
@@ -147,7 +151,9 @@ public partial class SettingsDialog : Window
             if (sp.WaveFormat.Channels == 1)
                 sp = new MonoToStereoSampleProvider(sp);
 
-            var vol = new VolumeSampleProvider(sp)
+            var speed = new SpeedSampleProvider(sp, (float)SpeedSlider.Value / 100f);
+
+            var vol = new VolumeSampleProvider(speed)
             {
                 Volume = (float)VolumeSlider.Value / 100f
             };
@@ -257,6 +263,12 @@ public partial class SettingsDialog : Window
             VolumeLabel.Text = $"{(int)e.NewValue}%";
     }
 
+    private void OnSpeedChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+    {
+        if (SpeedLabel != null)
+            SpeedLabel.Text = $"{(int)e.NewValue}%";
+    }
+
     private void OnSaveClick(object sender, RoutedEventArgs e)
     {
         StopPreview();
@@ -266,6 +278,7 @@ public partial class SettingsDialog : Window
         if (string.IsNullOrEmpty(Pad.SoundName) && !string.IsNullOrEmpty(Pad.SoundPath))
             Pad.SoundName = Path.GetFileNameWithoutExtension(Pad.SoundPath);
         Pad.Volume = (int)VolumeSlider.Value;
+        Pad.Speed  = (int)SpeedSlider.Value;
 
         if (_fileDuration > 0)
         {
@@ -293,9 +306,46 @@ public partial class SettingsDialog : Window
         Pad.Volume    = 100;
         Pad.StartTime = -1;
         Pad.EndTime   = -1;
+        Pad.Speed     = 100;
 
         Cleared = true;
         DialogResult = true;
         Close();
+    }
+
+    private void OnMoveClick(object sender, RoutedEventArgs e)
+    {
+        var picker = new Controls.KeyPickerDialog();
+        picker.Owner = this;
+        if (picker.ShowDialog() == true)
+        {
+            TargetKey = picker.SelectedKey;
+
+            // We also capture current settings to the pad so they move with the sound
+            StopPreview();
+            Pad.SoundPath = FilePathBox.Text.Trim();
+            Pad.SoundName = DisplayNameBox.Text.Trim();
+            if (string.IsNullOrEmpty(Pad.SoundName) && !string.IsNullOrEmpty(Pad.SoundPath))
+                Pad.SoundName = Path.GetFileNameWithoutExtension(Pad.SoundPath);
+            Pad.Volume = (int)VolumeSlider.Value;
+            Pad.Speed  = (int)SpeedSlider.Value;
+
+            if (_fileDuration > 0)
+            {
+                double sr = Waveform.StartRatio;
+                double er = Waveform.EndRatio;
+                Pad.StartTime = sr > 0.001 ? sr * _fileDuration : -1;
+                Pad.EndTime   = er < 0.999 ? er * _fileDuration : -1;
+            }
+            else
+            {
+                Pad.StartTime = -1;
+                Pad.EndTime   = -1;
+            }
+
+            Saved = true;
+            DialogResult = true;
+            Close();
+        }
     }
 }
