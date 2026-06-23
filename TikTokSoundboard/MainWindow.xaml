@@ -166,7 +166,7 @@
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="16,0">
                             <TextBlock Text="🎵" FontSize="18" VerticalAlignment="Center" Margin="0,0,10,0"/>
                             <TextBlock FontSize="15" FontWeight="Bold"
-                                       Foreground="#e6edf3" FontFamily="Segoe UI" VerticalAlignment="Center"><Run Text="TikTok Soundboard V2.1.0"/><Run Language="th-th" Text=" "/></TextBlock>
+                                       Foreground="#e6edf3" FontFamily="Segoe UI" VerticalAlignment="Center"><Run Text="TikTok Soundboard V2.2.1"/><Run Language="th-th" Text=" "/></TextBlock>
                         </StackPanel>
 
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="4,0">
