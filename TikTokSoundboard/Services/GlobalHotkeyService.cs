@@ -43,6 +43,7 @@ public class GlobalHotkeyService : IDisposable
     private bool _active = true;
 
     public event Action<string>? KeyTriggered;
+    public event Action? StopRequested;
 
     public GlobalHotkeyService()
     {
@@ -76,7 +77,11 @@ public class GlobalHotkeyService : IDisposable
         if (nCode >= 0 && (int)wParam == WM_KEYDOWN && _active)
         {
             var hookStruct = Marshal.PtrToStructure<KBDLLHOOKSTRUCT>(lParam);
-            if (_vkToKey.TryGetValue(hookStruct.vkCode, out var key) && _registeredKeys.Contains(key))
+            if (hookStruct.vkCode == 0x1B || hookStruct.vkCode == 0x08) // 0x1B = VK_ESCAPE, 0x08 = VK_BACK
+            {
+                StopRequested?.Invoke();
+            }
+            else if (_vkToKey.TryGetValue(hookStruct.vkCode, out var key) && _registeredKeys.Contains(key))
             {
                 KeyTriggered?.Invoke(key);
             }

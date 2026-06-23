@@ -63,6 +63,7 @@ public partial class MainWindow : Window
         _audio = new AudioService();
         _hotkeys = new GlobalHotkeyService();
         _hotkeys.KeyTriggered += OnHotkeyTriggered;
+        _hotkeys.StopRequested += OnGlobalStopRequested;
 
         InitPads();
         LoadConfig();
@@ -263,6 +264,11 @@ public partial class MainWindow : Window
     {
         Dispatcher.Invoke(() => PlaySound(key));
     }
+    
+    private void OnGlobalStopRequested()
+    {
+        Dispatcher.Invoke(() => OnStopAllClick(this, new RoutedEventArgs()));
+    }
 
     // ==================== Audio ====================
     private void PlaySound(string key)
@@ -319,7 +325,7 @@ public partial class MainWindow : Window
 
     private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
     {
-        if (e.Key == Key.Escape)
+        if (e.Key == Key.Escape || (e.Key == Key.Back && !(Keyboard.FocusedElement is TextBox)))
         {
             OnStopAllClick(this, new RoutedEventArgs());
             e.Handled = true;
