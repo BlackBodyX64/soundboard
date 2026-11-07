@@ -12,43 +12,57 @@ permissions:
 
 jobs:
   build:
-    name: Build Windows Executable
+    name: Build Windows Executable (Rust + Tauri v2)
     runs-on: windows-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          dotnet-version: '8.0.x'
+          node-version: "22"
+          cache: "npm"
 
-      - name: Publish application (Single File)
-        run: dotnet publish TikTokSoundboard/TikTokSoundboard.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o publish_output
+      - name: Install Rust Stable Toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Rust Cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: "./src-tauri -> target"
+
+      - name: Install Frontend Dependencies & Build UI
+        run: |
+          npm ci
+          npm run build
+
+      - name: Build Rust Tauri Release Binary
+        run: cargo build --release --manifest-path src-tauri/Cargo.toml
 
       - name: Verify build output
         run: |
-          if (!(Test-Path "publish_output\TikTokSoundboard.exe")) {
+          if (!(Test-Path "src-tauri\target\release\TikTokSoundboard.exe")) {
             Write-Error "Build failed: TikTokSoundboard.exe not found"
             exit 1
           }
-          $size = (Get-Item "publish_output\TikTokSoundboard.exe").Length / 1MB
+          $size = (Get-Item "src-tauri\target\release\TikTokSoundboard.exe").Length / 1MB
           Write-Host "Build successful! Size: $([math]::Round($size, 2)) MB"
 
       - name: Create release package
         run: |
           New-Item -ItemType Directory -Path "release_zip" -Force
-          Copy-Item "publish_output\*" "release_zip\" -Recurse
+          Copy-Item "src-tauri\target\release\TikTokSoundboard.exe" "release_zip\" -Force
           if (Test-Path "soundboard_config.json") { Copy-Item "soundboard_config.json" "release_zip\" -ErrorAction SilentlyContinue }
           if (Test-Path "sounds") { Copy-Item "sounds" "release_zip\sounds" -Recurse -ErrorAction SilentlyContinue }
           if (Test-Path "README.md") { Copy-Item "README.md" "release_zip\" -ErrorAction SilentlyContinue }
-          
+
       - name: Create Inno Setup Script
         run: |
           $appVersion = "${{ github.ref_name }}"
-          if ($appVersion -eq "") { $appVersion = "1.0.0" }
-          
+          if ($appVersion -eq "") { $appVersion = "2.3.0" }
+
           $issContent = @"
           [Setup]
           AppName=TikTok Soundboard
@@ -62,19 +76,19 @@ jobs:
           OutputBaseFilename=TikTok_Soundboard_Installer_${appVersion}
           DisableProgramGroupPage=yes
           PrivilegesRequired=admin
-          
+
           [Tasks]
           Name: `"desktopicon`"; Description: `"สร้าง Shortcut บน Desktop`"; GroupDescription: `"Additional icons:`";
-          
+
           [Files]
           Source: `"release_zip\*`"; DestDir: `"{app}`"; Flags: ignoreversion recursesubdirs createallsubdirs
-          
+
           [Icons]
           Name: `"{autodesktop}\TikTok Soundboard`"; Filename: `"{app}\TikTokSoundboard.exe`"; Tasks: desktopicon
           Name: `"{group}\TikTok Soundboard`"; Filename: `"{app}\TikTokSoundboard.exe`"
           Name: `"{group}\Uninstall TikTok Soundboard`"; Filename: `"{uninstallexe}`"
           "@
-          
+
           Set-Content -Path "installer.iss" -Value $issContent -Encoding UTF8
 
       - name: Compile Installer
@@ -94,7 +108,7 @@ jobs:
         with:
           name: "TikTok Soundboard ${{ github.ref_name }}"
           body: |
-            ## 🎵 TikTok Soundboard ${{ github.ref_name }} (WPF Version)
+            ## 🎵 TikTok Soundboard ${{ github.ref_name }} (Rust + Tauri v2 Version)
 
             ### ดาวน์โหลด
             โหลดไฟล์ `TikTok_Soundboard_Installer_${{ github.ref_name }}.exe` เพื่อทำการติดตั้งโปรแกรมลงในเครื่อง

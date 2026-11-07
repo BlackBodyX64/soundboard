@@ -6,6 +6,10 @@ release/
 release_zip/
 [Dd]ebug/
 [Rr]elease/
+dist/
+node_modules/
+src-tauri/target/
+src-tauri/gen/
 
 # User-specific files
 *.rsuser
@@ -30,4 +34,5 @@ Thumbs.db
 
 # Project specific
 *.log
-
+installer.iss
+*.exe
